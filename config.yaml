@@ -1,0 +1,7 @@
+disk_path: "disk.img"
+disk_size: 67108864      # 64 MB
+block_size: 4096         # 4 KB
+allocation_mode: "FAT"   # "FAT" | "INODE"
+cache_capacity: 64
+default_quota: 10485760  # 10 MB
+session_timeout: 1800    # 30 minutes

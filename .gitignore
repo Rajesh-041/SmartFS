@@ -1,0 +1,23 @@
+# Build artifacts
+*.o
+*.exe
+*.out
+*.a
+*.so
+*.dylib
+
+# Virtual disk & runtime log files
+*.img
+*.log
+
+# Python cache & virtual environment
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# IDE & OS generated files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
