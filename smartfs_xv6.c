@@ -16,8 +16,8 @@
 #define BLOCK_SIZE 512       /* Standard xv6 block size */
 #define TOTAL_BLOCKS 128     /* 64 KB virtual disk */
 #define RESERVED_BLOCKS 4
-#define MAX_NAME 32
-#define MAX_FILES 32
+#define MAX_NAME 16
+#define MAX_FILES 8
 
 /* Superblock */
 struct superblock {
@@ -41,21 +41,20 @@ static uchar bitmap[TOTAL_BLOCKS / 8];
 static short fat_table[TOTAL_BLOCKS];
 static struct dir_entry directories[MAX_FILES];
 static struct superblock sb;
+static uchar disk[TOTAL_BLOCKS * BLOCK_SIZE];
 
 static int disk_fd = -1;
 
 /* Virtual Disk Raw I/O */
 static int disk_read(int block_id, uchar *buf) {
-  if (disk_fd < 0 || block_id >= TOTAL_BLOCKS) return -1;
-  seek(disk_fd, block_id * BLOCK_SIZE);
-  read(disk_fd, buf, BLOCK_SIZE);
+  if (block_id < 0 || block_id >= TOTAL_BLOCKS) return -1;
+  memcpy(buf, &disk[block_id * BLOCK_SIZE], BLOCK_SIZE);
   return 0;
 }
 
 static int disk_write(int block_id, const uchar *buf) {
-  if (disk_fd < 0 || block_id >= TOTAL_BLOCKS) return -1;
-  seek(disk_fd, block_id * BLOCK_SIZE);
-  write(disk_fd, buf, BLOCK_SIZE);
+  if (block_id < 0 || block_id >= TOTAL_BLOCKS) return -1;
+  memcpy(&disk[block_id * BLOCK_SIZE], buf, BLOCK_SIZE);
   return 0;
 }
 
@@ -99,12 +98,7 @@ static int format_disk(void) {
   disk_fd = open("disk.img", O_CREATE | O_RDWR);
   if (disk_fd < 0) return -1;
 
-  /* Zero disk */
-  uchar zero[BLOCK_SIZE];
-  memset(zero, 0, BLOCK_SIZE);
-  for (int i = 0; i < TOTAL_BLOCKS; i++) {
-    write(disk_fd, zero, BLOCK_SIZE);
-  }
+  memset(disk, 0, sizeof(disk));
 
   sb.magic[0] = 'S'; sb.magic[1] = 'M'; sb.magic[2] = 'F'; sb.magic[3] = 'S';
   sb.total_blocks = TOTAL_BLOCKS;
